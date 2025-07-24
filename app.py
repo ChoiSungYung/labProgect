@@ -193,18 +193,25 @@ with tab1:
             current_start = st.session_state.analysis_start_time
             current_end = st.session_state.analysis_end_time
 
-            colA, colB = st.columns(2)
-            num_start = colA.number_input("분석 시작 시간", value=float(current_start), step=1.0, label_visibility="collapsed")
-            num_end = colB.number_input("분석 종료 시간", value=float(current_end), step=1.0, label_visibility="collapsed")
+            # --- Create three columns for the compact layout ---
+            col_start, col_slider, col_end = st.columns([1, 8, 1]) # Adjusted ratio for smaller number boxes
 
-            slider_start, slider_end = st.slider(
-                "분석 구간 조절",
-                min_value=float(min_bound),
-                max_value=float(max_bound),
-                value=(float(current_start), float(current_end)),
-                label_visibility="collapsed"
-            )
+            with col_start:
+                num_start = st.number_input("분석 시작 시간", value=float(current_start), step=1.0, label_visibility="collapsed")
 
+            with col_slider:
+                slider_start, slider_end = st.slider(
+                    "분석 구간 조절",
+                    min_value=float(min_bound),
+                    max_value=float(max_bound),
+                    value=(float(current_start), float(current_end)),
+                    label_visibility="collapsed"
+                )
+
+            with col_end:
+                num_end = st.number_input("분석 종료 시간", value=float(current_end), step=1.0, label_visibility="collapsed")
+            
+            # --- Sync Logic ---
             if (num_start, num_end) != (current_start, current_end):
                 st.session_state.analysis_start_time = num_start
                 st.session_state.analysis_end_time = num_end
@@ -214,9 +221,9 @@ with tab1:
                 st.session_state.analysis_end_time = slider_end
                 st.rerun()
 
-            # The divider is removed from here to minimize vertical space
+            # The divider is removed as per the previous request
             # st.divider()
-
+            
             # 3. The Graph Body
             fig = FigureResampler(go.Figure())
             for batch in st.session_state.batches:
